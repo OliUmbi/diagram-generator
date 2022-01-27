@@ -26,16 +26,11 @@ body {
     height: 100vh;
     display: grid;
     grid-template-columns: 500px auto;
+    background-color: var(--base-50);
 }
 
 .editor {
     position: relative;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-}
-
-.canvas {
     width: 100%;
     height: 100%;
     overflow: hidden;
@@ -49,6 +44,18 @@ body {
     padding: 10px;
     font-family: monospace;
     resize: none;
+}
+
+.canvas {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    position: relative;
+}
+
+#canvas {
+    background-color: var(--base-100);
+    position: absolute;
 }
 
 .editor > button {

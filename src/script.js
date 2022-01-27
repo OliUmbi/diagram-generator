@@ -1,7 +1,32 @@
-window.onload = init();
+let canvas;
+let isDown = false;
 
-function init() {
+window.onload = ev => {
+    canvas = document.getElementById('yeet');
+
+    canvas.addEventListener('mousedown', canvasDown, true);
+
+    document.addEventListener('mouseup', canvasUp, true);
+
+    document.addEventListener('mousemove', canvasMove, true);
 }
+
+function canvasDown(event) {
+    isDown = true;
+}
+
+function canvasUp() {
+    isDown = false;
+}
+
+function canvasMove(event) {
+    if (isDown) {
+        canvas.x = (event.clientY - 250) + 'px';
+        canvas.y = (event.clientX - 750) + 'px';
+        console.log(canvas);
+    }
+}
+
 
 function parseEditor() {
     let editor = document.getElementById("editor");
