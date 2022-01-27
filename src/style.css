@@ -1,0 +1,86 @@
+:root {
+    --base-50: #f8fafc;
+    --base-100: #f1f5f9;
+    --base-200: #e2e8f0;
+    --base-300: #cbd5e1;
+    --base-400: #94a3b8;
+    --base-500: #64748b;
+    --base-600: #475569;
+    --base-700: #334155;
+    --base-800: #1e293b;
+    --base-900: #0f172a;
+    --accent-50: #eff6ff;
+    --accent-100: #dbeafe;
+    --accent-200: #bfdbfe;
+    --accent-300: #93c5fd;
+    --accent-400: #60a5fa;
+    --accent-500: #3b82f6;
+    --accent-600: #2563eb;
+    --accent-700: #1d4ed8;
+    --accent-800: #1e40af;
+    --accent-900: #1e3a8a;
+}
+
+body {
+    width: 100vw;
+    height: 100vh;
+    display: grid;
+    grid-template-columns: 500px auto;
+}
+
+.editor {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+.canvas {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+#editor {
+    width: 100%;
+    height: 100%;
+    background-color: var(--base-900);
+    color: var(--accent-50);
+    padding: 10px;
+    font-family: monospace;
+    resize: none;
+}
+
+.editor > button {
+    position: absolute;
+    right: 20px;
+    top: 10px;
+    padding: 8px 15px;
+    border: none;
+    background-color: var(--accent-500);
+    color: var(--base-50);
+}
+
+.editor > button:hover {
+    background-color: var(--accent-600);
+}
+
+/* width */
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+    background: var(--base-900);
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+    background: var(--accent-500);
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+    background: var(--accent-600);
+}

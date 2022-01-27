@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>diagram-generator</title>
+    <link rel="stylesheet" href="normalize.css">
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js"></script>
+</head>
+<body>
+    <div class="editor">
+        <button onclick="parseEditor()">reload</button>
+        <textarea id="editor" cols="30" rows="50" spellcheck="false" onkeyup="parseEditor()">
+-- tables
+CREATE TABLE Persons
+(
+    Personid int NOT NULL AUTO_INCREMENT primary key,
+    LastName varchar(255) NOT NULL,
+    FirstName varchar(255),
+    Age int,
+    foreign key (lastname) references security_accounts (id)
+);
+drop table if exists security_accounts cascade;
+create table security_accounts
+(
+    id       serial primary key,
+    email    varchar(255),
+    password varchar(255),
+    role     int
+);
+
+drop table if exists security_tokens cascade;
+create table security_tokens
+(
+    id      serial primary key,
+    account int,
+    refresh varchar(255),
+    access  varchar(255),
+    expires timestamp
+);
+
+drop table if exists security_access cascade;
+create table security_access
+(
+    id   serial primary key,
+    name varchar(255),
+    edit bool
+);
+
+drop table if exists security_roles cascade;
+create table security_roles
+(
+    id   serial primary key,
+    role varchar(255)
+);
+
+drop table if exists security_roles_access cascade;
+create table security_roles_access
+(
+    id     serial primary key,
+    role   int,
+    access int
+);
+
+-- foreign keys
+alter table security_accounts
+    add foreign key (role) references security_roles (id);
+
+alter table security_tokens
+    add foreign key (account) references security_accounts (id);
+
+alter table security_roles_access
+    add foreign key (role) references security_roles (id);
+alter table security_roles_access
+    add foreign key (access) references security_access (id);
+
+-- unique
+alter table security_accounts
+    add unique (email);
+
+alter table security_roles
+    add unique (role);
+
+alter table security_tokens
+    add unique (access);
+alter table security_tokens
+    add unique (refresh);
+
+alter table security_roles_access
+    add unique (role, access);
+        </textarea>
+    </div>
+    <div class="canvas">
+        
+    </div>
+</body>
+</html>
