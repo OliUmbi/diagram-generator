@@ -58,7 +58,7 @@ body {
     position: absolute;
 }
 
-.editor > button {
+button {
     position: absolute;
     right: 20px;
     top: 10px;
@@ -68,7 +68,7 @@ body {
     color: var(--base-50);
 }
 
-.editor > button:hover {
+button:hover {
     background-color: var(--accent-600);
 }
 
