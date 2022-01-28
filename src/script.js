@@ -36,8 +36,6 @@ function parseEditor() {
                     let secondMulti = "1";
                     let composition = false;
 
-                    console.log(foreign);
-
                     columns.forEach((column) => {
                         if (column.name.includes(foreign)) {
                             column.stereotype = column.stereotype.includes("PK")
@@ -119,7 +117,7 @@ function parseEditor() {
                     }
 
                     // properties
-                    if (attribute[j].includes("not")) {
+                    if (attribute[j] === 'not') {
                         attribute.splice(j + 1, 1);
                         properties += "not null ";
                         continue;
@@ -238,15 +236,11 @@ function drawClasses() {
         for (let j = 0; j < clazz.columns.length; j++) {
             let column = clazz.columns[j];
 
-            let attribute =
-                column.stereotype +
-                " " +
-                column.name +
-                ": " +
-                column.datatype +
-                " {" +
-                column.properties +
-                "}";
+            let attribute = column.stereotype + ' ' + column.name + ': ' + column.datatype;
+
+            if (column.properties !== '') {
+               attribute += ' { ' + column.properties + '}';
+            }
 
             let bodyColumn = document.createElementNS(svgns, "text");
             bodyColumn.setAttribute("x", "5");
