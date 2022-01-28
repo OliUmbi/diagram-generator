@@ -192,11 +192,11 @@ create table warenkorb_position
                     <polygon points="0 15, 15 22, 30 15, 15 8" stroke="black" fill="white" />
                 </marker>
                 <marker id="com" markerWidth="30" markerHeight="30" 
-                refX="30" refY="15" orient="auto" markerUnits="strokeWidth">
-                <polygon points="0 15, 15 22, 30 15, 15 8" stroke="black" fill="black" />
-            </marker>
+                    refX="30" refY="15" orient="auto" markerUnits="strokeWidth">
+                    <polygon points="0 15, 15 22, 30 15, 15 8" stroke="black" fill="black" />
+                </marker>
             </defs>
-            <g transform="translate(500, 20)" width="300" height="600" class="draggable-group">
+            <g transform="translate(500, 500)" width="300" height="600" class="draggable-group">
                 <rect x="0" y="0" width="200" height="50" class="box"></rect>
                 <text x="100" y="15" class="head">&lt;&lt;Table&gt;&gt;</text>
                 <text x="100" y="35" class="head" font-weight="bold">Person</text>
@@ -207,11 +207,11 @@ create table warenkorb_position
                 <text x="10" y="130">Hello</text>
                 <text x="10" y="150">Hello</text>
             </g>
-            <line x1="328" y1="321" x2="100" y2="100" marker-end="url(#agg)" marker-start="url(#com)" />
-            <text x="290" y="290">1..*</text>
-            <text x="90" y="90">1</text>
+            <line x1="0" y1="0" x2="500" y2="500" marker-end="url(#agg)" marker-start="url(#com)" />
+            <text x="30" y="20">1..*</text>
+            <text x="480" y="470">1</text>
         </svg>
-        <button onclick="drawConnections()" hidden>reload</button>
+        <button onclick="download()">download</button>
     </div>
 </body>
 

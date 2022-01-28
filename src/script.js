@@ -202,7 +202,7 @@ function drawClasses() {
         let headStereotype = document.createElementNS(svgns, "text");
         let headName = document.createElementNS(svgns, "text");
         let bodyRect = document.createElementNS(svgns, "rect");
-        
+
         group.setAttribute("transform", "translate(0, 0)");
         group.setAttribute("width", "300");
         group.setAttribute("height", 25 * clazz.columns.length + 50);
@@ -239,7 +239,7 @@ function drawClasses() {
             let attribute = column.stereotype + ' ' + column.name + ': ' + column.datatype;
 
             if (column.properties !== '') {
-               attribute += ' { ' + column.properties + '}';
+                attribute += ' { ' + column.properties + '}';
             }
 
             let bodyColumn = document.createElementNS(svgns, "text");
@@ -314,9 +314,9 @@ function drawConnections() {
                                 secondY = second.y2;
                             } else if (offY <= -150) {
                                 // bottom
-                                firstX = (first.x1 + first.x2)/ 2;
+                                firstX = (first.x1 + first.x2) / 2;
                                 firstY = first.y2;
-                                secondX = (second.x1 + second.x2)/ 2;
+                                secondX = (second.x1 + second.x2) / 2;
                                 secondY = second.y1;
                             } else {
                                 // center
@@ -342,11 +342,11 @@ function drawConnections() {
 
                         // multiplicity
                         if (firstX < secondX) {
-                            secondMulti.setAttribute("x",secondX - 20);
-                            firstMulti.setAttribute("x",firstX + 20);
+                            secondMulti.setAttribute("x", secondX - 20);
+                            firstMulti.setAttribute("x", firstX + 20);
                         } else {
-                            secondMulti.setAttribute("x",secondX + 20);
-                            firstMulti.setAttribute("x",firstX - 20);
+                            secondMulti.setAttribute("x", secondX + 20);
+                            firstMulti.setAttribute("x", firstX - 20);
                         }
 
                         if (firstY < secondY) {
@@ -387,7 +387,9 @@ function makeDraggable(evt) {
             y: (evt.clientY - CTM.f) / CTM.d,
         };
     }
+
     var selectedElement, offset, transform;
+
     function initialiseDragging(evt) {
         offset = getMousePosition(evt);
         // Make sure the first transform on the element is a translate transform
@@ -406,6 +408,7 @@ function makeDraggable(evt) {
         offset.x -= transform.matrix.e;
         offset.y -= transform.matrix.f;
     }
+
     function startDrag(evt) {
         if (evt.target.classList.contains("draggable")) {
             selectedElement = evt.target;
@@ -417,16 +420,17 @@ function makeDraggable(evt) {
             initialiseDragging(evt);
         }
     }
+
     function drag(evt) {
         if (selectedElement) {
             evt.preventDefault();
             var coord = getMousePosition(evt);
-            transform.setTranslate(coord.x - offset.x, coord.y - offset.y);
+            transform.setTranslate(Math.ceil((coord.x - offset.x) / 10) * 10, Math.ceil((coord.y - offset.y) / 10) * 10);
         }
     }
-    function endDrag(evt) {
+
+    function endDrag() {
         selectedElement = false;
         drawConnections();
-
     }
 }
