@@ -191,7 +191,7 @@ function drawClasses() {
         let headStereotype = document.createElementNS(svgns, "text");
         let headName = document.createElementNS(svgns, "text");
         let bodyRect = document.createElementNS(svgns, "rect");
-
+        
         group.setAttribute("transform", "translate(0, 0)");
         group.setAttribute("width", "300");
         group.setAttribute("height", 25 * clazz.columns.length + 50);
