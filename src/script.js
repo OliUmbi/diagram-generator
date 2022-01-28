@@ -1,3 +1,4 @@
+const svgns = "http://www.w3.org/2000/svg";
 let classes;
 let connections;
 
@@ -16,7 +17,7 @@ function parseEditor() {
 
             i = i + 2;
             let columns = [];
-            while (!lines[i].trim().includes(");")) {
+            while (!lines[i].trim().includes(";")) {
                 // removes all unused chars, maybe a global thing
                 let attribute = lines[i]
                     .trim()
@@ -34,6 +35,8 @@ function parseEditor() {
                     let firstMulti = "0..*";
                     let secondMulti = "1";
                     let composition = false;
+
+                    console.log(foreign);
 
                     columns.forEach((column) => {
                         if (column.name.includes(foreign)) {
@@ -56,7 +59,8 @@ function parseEditor() {
                             composition
                         )
                     );
-                    break;
+                    i++;
+                    continue;
                 }
 
                 let name = "";
@@ -173,13 +177,22 @@ function createConnection(first, second, firstMulti, secondMulti, composition) {
     };
 }
 
+function createPosition(name, x1, y1, x2, y2) {
+    return {
+        name: name,
+        x1: x1,
+        y1: y1,
+        x2: x2,
+        y2: y2
+    }
+}
+
 function drawClasses() {
     parseEditor();
 
-    const svgns = "http://www.w3.org/2000/svg";
     let svg = document.getElementById("canvas");
 
-    while (svg.lastChild.nodeName !== 'style') {
+    while (svg.lastChild.nodeName !== 'defs') {
         svg.removeChild(svg.lastChild);
     }
 
@@ -206,6 +219,7 @@ function drawClasses() {
         headStereotype.setAttribute("class", "head");
         headName.setAttribute("x", "150");
         headName.setAttribute("y", "35");
+        headName.setAttribute("font-weight", "bold");
         headName.setAttribute("class", "head");
         bodyRect.setAttribute("x", "0");
         bodyRect.setAttribute("y", "50");
@@ -247,7 +261,119 @@ function drawClasses() {
 }
 
 function drawConnections() {
-    let svg = document.getElementById
+    let svg = document.getElementById('canvas');
+    let positions = [];
+
+    svg.childNodes.forEach(child => {
+        if (child.nodeName === 'g') {
+            let matrix = child.transform.baseVal.consolidate().matrix;
+
+            positions.push(createPosition(
+                child.childNodes[2].childNodes[0].nodeValue,
+                matrix.e,
+                matrix.f,
+                matrix.e + 300,
+                matrix.f + parseInt(child.getAttribute('height'))
+            ));
+        }
+    });
+
+    while (svg.lastChild.nodeName !== 'g') {
+        svg.removeChild(svg.lastChild);
+    }
+
+    connections.forEach(connection => {
+        positions.forEach(first => {
+            if (connection.first === first.name) {
+                let line = document.createElementNS(svgns, "line");
+                let firstMulti = document.createElementNS(svgns, "text");
+                let secondMulti = document.createElementNS(svgns, "text");
+
+                positions.forEach(second => {
+                    if (connection.second === second.name) {
+                        let offX = first.x1 - second.x1;
+                        let offY = first.y1 - second.y1;
+                        let firstX;
+                        let firstY;
+                        let secondX;
+                        let secondY;
+
+                        if (offX >= 400) {
+                            // left
+                            firstX = first.x1;
+                            firstY = (first.y1 + first.y2) / 2;
+                            secondX = second.x2;
+                            secondY = (second.y1 + second.y2) / 2;
+                        } else if (offX <= -400) {
+                            // right
+                            firstX = first.x2;
+                            firstY = (first.y1 + first.y2) / 2;
+                            secondX = second.x1;
+                            secondY = (second.y1 + second.y2) / 2;
+                        } else {
+                            // center
+                            if (offY >= 150) {
+                                // top
+                                firstX = (first.x1 + first.x2) / 2;
+                                firstY = first.y1;
+                                secondX = (second.x1 + second.x2) / 2;
+                                secondY = second.y2;
+                            } else if (offY <= -150) {
+                                // bottom
+                                firstX = (first.x1 + first.x2)/ 2;
+                                firstY = first.y2;
+                                secondX = (second.x1 + second.x2)/ 2;
+                                secondY = second.y1;
+                            } else {
+                                // center
+                                firstX = first.x1;
+                                firstY = first.y1;
+                                secondX = second.x1;
+                                secondY = second.y1;
+                            }
+                        }
+
+                        line.setAttribute("x1", firstX);
+                        line.setAttribute("y1", firstY);
+
+                        line.setAttribute('x2', secondX);
+                        line.setAttribute('y2', secondY);
+
+                        // association
+                        if (connection.composition) {
+                            line.setAttribute('marker-end', 'url(#com)')
+                        } else {
+                            line.setAttribute('marker-end', 'url(#agg)')
+                        }
+
+                        // multiplicity
+                        if (firstX < secondX) {
+                            secondMulti.setAttribute("x",secondX - 20);
+                            firstMulti.setAttribute("x",firstX + 20);
+                        } else {
+                            secondMulti.setAttribute("x",secondX + 20);
+                            firstMulti.setAttribute("x",firstX - 20);
+                        }
+
+                        if (firstY < secondY) {
+                            firstMulti.setAttribute("y", firstY + 20);
+                            secondMulti.setAttribute("y", secondY - 40);
+                        } else {
+                            firstMulti.setAttribute("y", firstY - 20);
+                            secondMulti.setAttribute("y", secondY + 30);
+                        }
+                        firstMulti.appendChild(document.createTextNode(connection.firstMulti));
+                        secondMulti.appendChild(document.createTextNode(connection.secondMulti));
+
+                    }
+                })
+
+                svg.appendChild(line);
+                svg.appendChild(firstMulti);
+                svg.appendChild(secondMulti);
+            }
+        })
+    })
 }
 
 function makeDraggable(evt) {
@@ -269,7 +395,6 @@ function makeDraggable(evt) {
     }
     var selectedElement, offset, transform;
     function initialiseDragging(evt) {
-        console.log(transform);
         offset = getMousePosition(evt);
         // Make sure the first transform on the element is a translate transform
         var transforms = selectedElement.transform.baseVal;
@@ -307,5 +432,7 @@ function makeDraggable(evt) {
     }
     function endDrag(evt) {
         selectedElement = false;
+        drawConnections();
+
     }
 }

@@ -13,83 +13,155 @@
     <div class="editor">
         <button onclick="drawClasses()">reload</button>
         <textarea id="editor" cols="30" rows="50" spellcheck="false">
--- tables
-CREATE TABLE Persons
+drop database if exists la_2518;
+create database la_2518;
+
+use la_2518;
+
+drop table if exists uebersetzung;
+create table uebersetzung
 (
-    personId int NOT NULL AUTO_INCREMENT primary key,
-    LastName varchar(255) NOT NULL,
-    FirstName varchar(255),
-    Age int,
-    foreign key (lastname) references security_accounts (id)
-);
-drop table if exists security_accounts cascade;
-create table security_accounts
-(
-    id       serial primary key,
-    email    varchar(255),
-    password varchar(255),
-    role     int
+    id           int auto_increment primary key,
+    deutsch      varchar(255) not null,
+    englisch     varchar(255) not null,
+    franzoesisch varchar(255) not null
 );
 
-drop table if exists security_tokens cascade;
-create table security_tokens
+drop table if exists kunde;
+create table kunde
 (
-    id      serial primary key,
-    account int,
-    refresh varchar(255),
-    access  varchar(255),
-    expires timestamp
+    id                     int auto_increment primary key,
+    vorname                varchar(255) not null,
+    name                   varchar(255) not null,
+    passwort               varchar(255) not null,
+    email                  varchar(255) not null,
+    sprache                varchar(255) not null,
+    wohnort                varchar(255) not null,
+    plz                    int          not null,
+    strasse                varchar(255) not null,
+    hausnummer             int          not null,
+    email_benachrichtigung boolean      not null,
+    post_benachrichtigung  boolean      not null
 );
 
-drop table if exists security_access cascade;
-create table security_access
+drop table if exists auftrag_status;
+create table auftrag_status
 (
-    id   serial primary key,
-    name varchar(255),
-    edit bool
+    id     int auto_increment primary key,
+    status int not null,
+    foreign key (status) references uebersetzung (id)
 );
 
-drop table if exists security_roles cascade;
-create table security_roles
+drop table if exists zahlungsart;
+create table zahlungsart
 (
-    id   serial primary key,
-    role varchar(255)
+    id                  int auto_increment primary key,
+    bezeichnung         int not null,
+    rechnungsausloesung int not null,
+    foreign key (bezeichnung) references uebersetzung (id)
 );
 
-drop table if exists security_roles_access cascade;
-create table security_roles_access
+drop table if exists auftrag;
+create table auftrag
 (
-    id     serial primary key,
-    role   int,
-    access int
+    id             int auto_increment primary key,
+    kunde          int not null,
+    auftragsstatus int not null,
+    zahlungsart    int not null,
+    foreign key (kunde) references kunde (id),
+    foreign key (auftragsstatus) references auftrag_status (id),
+    foreign key (zahlungsart) references zahlungsart (id)
 );
 
--- foreign keys
-alter table security_accounts
-    add foreign key (role) references security_roles (id);
+drop table if exists artikel_hauptgruppe;
+create table artikel_hauptgruppe
+(
+    id          int auto_increment primary key,
+    bezeichnung int not null,
+    foreign key (bezeichnung) references uebersetzung (id)
+);
 
-alter table security_tokens
-    add foreign key (account) references security_accounts (id);
 
-alter table security_roles_access
-    add foreign key (role) references security_roles (id);
-alter table security_roles_access
-    add foreign key (access) references security_access (id);
+drop table if exists artikel_untergruppe;
+create table artikel_untergruppe
+(
+    id          int auto_increment primary key,
+    bezeichnung int not null,
+    hauptgruppe int not null,
+    foreign key (bezeichnung) references uebersetzung (id),
+    foreign key (hauptgruppe) references artikel_hauptgruppe (id)
+);
 
--- unique
-alter table security_accounts
-    add unique (email);
+drop table if exists artikel;
+create table artikel
+(
+    id                 int auto_increment primary key,
+    bezeichnung        int          not null,
+    artikelnummer      int          not null,
+    bestand            int          not null,
+    sichtbar           boolean      not null,
+    artikeluntergruppe int          not null,
+    verkaufspreis      float        not null,
+    einkaufspreis      float        not null,
+    marke              varchar(255) not null,
+    gewicht            float        not null,
+    bild               blob         not null,
+    herstellerlink     varchar(255) not null,
+    foreign key (bezeichnung) references uebersetzung (id),
+    foreign key (artikeluntergruppe) references artikel_untergruppe (id)
+);
 
-alter table security_roles
-    add unique (role);
+drop table if exists artikel_attribut;
+create table artikel_attribut
+(
+    id          int auto_increment primary key,
+    artikel     int not null,
+    bezeichnung int not null,
+    wert        int not null,
+    foreign key (artikel) references artikel (id),
+    foreign key (bezeichnung) references uebersetzung (id),
+    foreign key (wert) references uebersetzung (id)
+);
 
-alter table security_tokens
-    add unique (access);
-alter table security_tokens
-    add unique (refresh);
+drop table if exists artikel_bewertung;
+create table artikel_bewertung
+(
+    id        int auto_increment primary key,
+    artikel   int          not null,
+    note      float        not null,
+    kommentar varchar(255) not null,
+    foreign key (artikel) references artikel (id)
+);
 
-alter table security_roles_access
-    add unique (role, access);
+drop table if exists auftrag_position;
+create table auftrag_position
+(
+    id            int auto_increment primary key,
+    auftrag       int     not null,
+    artikel       int     not null,
+    verkaufspreis float   not null,
+    versendet     boolean not null,
+    foreign key (auftrag) references auftrag (id),
+    foreign key (artikel) references artikel (id)
+);
+
+drop table if exists warenkorb;
+create table warenkorb
+(
+    id    int auto_increment primary key,
+    kunde int not null,
+    foreign key (kunde) references kunde (id)
+);
+
+drop table if exists warenkorb_position;
+create table warenkorb_position
+(
+    id        int auto_increment primary key,
+    warenkorb int not null,
+    artikel   int not null,
+    foreign key (warenkorb) references warenkorb (id),
+    foreign key (artikel) references artikel (id)
+);
         </textarea>
     </div>
     <div class="canvas">
@@ -135,11 +207,11 @@ alter table security_roles_access
                 <text x="10" y="130">Hello</text>
                 <text x="10" y="150">Hello</text>
             </g>
-            <line x1="300" y1="300" x2="100" y2="100" marker-end="url(#agg)" marker-start="url(#com)" />
+            <line x1="328" y1="321" x2="100" y2="100" marker-end="url(#agg)" marker-start="url(#com)" />
             <text x="290" y="290">1..*</text>
             <text x="90" y="90">1</text>
         </svg>
-        <button onclick="drawClasses()" hidden>reload</button>
+        <button onclick="drawConnections()" hidden>reload</button>
     </div>
 </body>
 
