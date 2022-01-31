@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>diagram-generator</title>
+    <link rel="stylesheet" href="normalize.css" />
+    <link rel="stylesheet" href="style.css" />
+    <script src="conseptual.js"></script>
+</head>
+
+<body>
+    <div class="editor">
+        <button onclick="drawClasses()">reload</button>
+        <textarea id="editor" cols="30" rows="50" spellcheck="false">
+
+        </textarea>
+    </div>
+    <div class="canvas">
+        <svg id="canvas" width="100%" height="100%" onload="makeDraggable(evt)">
+            <style>
+                .draggable, .draggable-group {
+                    cursor: move;
+                }
+                text {
+                    font-size: 14px;
+                }
+                .head {
+                    dominant-baseline: middle;
+                    text-anchor: middle;
+                    font-size: 16px;
+                }
+                .box {
+                    fill: white;
+                    stroke: black;
+                }
+                line {
+                    stroke: black;
+                }
+            </style>
+            <defs>
+                <marker id="agg" markerWidth="30" markerHeight="30" 
+                refX="30" refY="15" orient="auto">
+                    <polygon points="0 15, 15 22, 30 15, 15 8" stroke="black" fill="white" />
+                </marker>
+                <marker id="com" markerWidth="30" markerHeight="30" 
+                    refX="30" refY="15" orient="auto" markerUnits="strokeWidth">
+                    <polygon points="0 15, 15 22, 30 15, 15 8" stroke="black" fill="black" />
+                </marker>
+            </defs>
+            <g transform="translate(500, 500)" width="300" height="600" class="draggable-group">
+                <rect x="0" y="0" width="200" height="50" class="box"></rect>
+                <text x="100" y="15" class="head">&lt;&lt;Table&gt;&gt;</text>
+                <text x="100" y="35" class="head" font-weight="bold">Person</text>
+                <rect x="0" y="50" width="200" height="200" class="box"></rect>
+                <text x="10" y="70">id : int {not null}</text>
+                <text x="10" y="90">Hello</text>
+                <text x="10" y="110">Hello</text>
+                <text x="10" y="130">Hello</text>
+                <text x="10" y="150">Hello</text>
+            </g>
+            <line x1="0" y1="0" x2="500" y2="500" marker-end="url(#agg)" marker-start="url(#com)" />
+            <text x="30" y="20">1..*</text>
+            <text x="480" y="470">1</text>
+        </svg>
+        <button onclick="download()" disabled>download</button>
+    </div>
+</body>
+
+</html>
