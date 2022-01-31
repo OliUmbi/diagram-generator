@@ -10,139 +10,32 @@ function parseEditor() {
     let lines = editor.value.toLowerCase().split("\n");
 
     for (let i = 0; i < lines.length; i++) {
-        let line = lines[i].trim();
+        let tableName = lines[i];
+        tableName.replace('\n', '');
 
-        if (line.includes("create table")) {
-            let tableName = line.split(" ")[2];
+        let columns = [];
 
-            i = i + 2;
-            let columns = [];
-            while (!lines[i].trim().includes(";")) {
-                // removes all unused chars, maybe a global thing
-                let attribute = lines[i]
-                    .trim()
-                    .replace(/ +(?= )/g, "")
-                    .replace(",", "")
-                    .split(" ");
+        let inEntity = true;
+        do {
+            i++;
 
-                if (attribute[0].includes("foreign")) {
-                    let foreign = attribute[2].substring(
-                        1,
-                        attribute[2].length - 1
-                    );
-                    let first = tableName;
-                    let second = attribute[4];
-                    let firstMulti = "0..*";
-                    let secondMulti = "1";
-                    let composition = false;
-
-                    columns.forEach((column) => {
-                        if (column.name.includes(foreign)) {
-                            column.stereotype = column.stereotype.includes("PK")
-                                ? "<<PFK>>"
-                                : "<<FK>>";
-                            if (column.properties.includes("not null")) {
-                                firstMulti = "1..*";
-                                composition = true;
-                            }
-                        }
-                    });
-
-                    connections.push(
-                        createConnection(
-                            first,
-                            second,
-                            firstMulti,
-                            secondMulti,
-                            composition
-                        )
-                    );
-                    i++;
-                    continue;
-                }
-
-                let name = "";
-                let datatype = "";
-                let stereotype = "";
-                let properties = "";
-
-                for (let j = 0; j < attribute.length; j++) {
-                    // datatype
-                    if (attribute[j].includes("int")) {
-                        datatype = "int";
-                        continue;
-                    }
-                    if (attribute[j].includes("varchar")) {
-                        datatype = "varchar";
-                        continue;
-                    }
-                    if (attribute[j].includes("float")) {
-                        datatype = "varchar";
-                        continue;
-                    }
-                    if (attribute[j].includes("double")) {
-                        datatype = "varchar";
-                        continue;
-                    }
-                    if (attribute[j].includes("boolean")) {
-                        datatype = "bool";
-                        continue;
-                    }
-                    if (attribute[j].includes("blob")) {
-                        datatype = "blob";
-                        continue;
-                    }
-                    if (attribute[j].includes("enum")) {
-                        datatype = "enum";
-                        continue;
-                    }
-                    if (attribute[j].includes("date")) {
-                        datatype = "enum";
-                        continue;
-                    }
-                    if (attribute[j].includes("timestamp")) {
-                        datatype = "enum";
-                        continue;
-                    }
-                    if (attribute[j].includes("serial")) {
-                        datatype = "serial";
-                        continue;
-                    }
-
-                    // stereotypes
-                    if (attribute[j].includes("primary")) {
-                        stereotype = "<<PK>>";
-                        attribute.splice(j + 1, 1);
-                        continue;
-                    }
-
-                    // properties
-                    if (attribute[j] === 'not') {
-                        attribute.splice(j + 1, 1);
-                        properties += "not null ";
-                        continue;
-                    }
-                    if (attribute[j].includes("auto_increment")) {
-                        properties += "auto ";
-                        continue;
-                    }
-                    if (attribute[j].includes("default")) {
-                        attribute.splice(j + 1, 1);
-                        properties += "default ";
-                        continue;
-                    }
-
-                    name = attribute[j];
-                }
-
-                columns.push(
-                    createColumn(name, datatype, stereotype, properties)
-                );
-                i++;
+            if (i > lines.length) {
+                break;
             }
 
-            classes.push(createClass("<<Table>>", tableName, columns));
-        }
+            let line = lines[i];
+            
+            if (!line) {
+                inEntity
+                continue;
+            }
+
+            inEntity = line.startsWith(' ');
+
+            columns.push(line.trim());
+        } while (inEntity);
+        
+        classes.push(createClass("<<entity>>", tableName.trim(), columns));
     }
     console.log(classes);
     console.log(connections);
@@ -153,15 +46,6 @@ function createClass(stereotype, name, columns) {
         stereotype: stereotype,
         name: name,
         columns: columns,
-    };
-}
-
-function createColumn(name, datatype, stereotype, properties) {
-    return {
-        name: name,
-        datatype: datatype,
-        stereotype: stereotype,
-        properties: properties,
     };
 }
 
@@ -236,16 +120,10 @@ function drawClasses() {
         for (let j = 0; j < clazz.columns.length; j++) {
             let column = clazz.columns[j];
 
-            let attribute = column.stereotype + ' ' + column.name + ': ' + column.datatype;
-
-            if (column.properties !== '') {
-                attribute += ' { ' + column.properties + '}';
-            }
-
             let bodyColumn = document.createElementNS(svgns, "text");
             bodyColumn.setAttribute("x", "5");
             bodyColumn.setAttribute("y", 70 + 20 * j);
-            bodyColumn.appendChild(document.createTextNode(attribute));
+            bodyColumn.appendChild(document.createTextNode(column));
 
             group.appendChild(bodyColumn);
         }
